@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Diferença Bubble X Selection</title>
+</head>
+<body>
+    <h1>Bubble X Selection</h1>
+    <p>Ao primeiro contato, os dois parecem o mesmo, ainda que exista 
+        muitas metaforas para diferenciar, ou entender, oque cada um
+        faz, não é o suficiente para perceber a diferença no sentido 
+        de codigo. </p>
+    <p>Mas é justamente observando o codigo rodar, diretamente na
+        memoria, que fica visivel a diferença. Vou tenta explicar 
+        diretamente com a sequencia de palavras certa, onde esta
+        a diferença. </p>
+    <p>Note que, o bubble, compara da posição 0, o par 0 e 1, então
+        se 0 for maior, trocam de posição, se não, vai para o proximo 
+        par, 1 e 2. O maior valor vai "flutuando" até a última posição
+        da memória. </p>
+    <p>Agora, o Selection funciona de forma diferente: ele fixa uma 
+        posição (começando pela 0) e percorre todo o restante do vetor
+        comparando o valor dessa posição com os outros
+        (0 e 1, 0 e 2, 0 e 3...). Ele busca o menor valor de todos e, 
+        só ao final desse ciclo, faz uma única troca para colocar o 
+        número correto no início. Veja que a diferença está em 'flutuar'
+        o maior passo a passo versus 'selecionar' o menor e trocá-lo de 
+        uma vez. </p>
+
+    <p>Por fim, o Insertion funciona por inserção direta: ele começa a partir do 
+        segundo elemento (posição 1) e o compara com os que estão para trás (à esquerda). 
+        Se o elemento for menor que o anterior, ele vai "empurrando" os maiores para 
+        a direita até encontrar o espaço vazio onde aquele valor se encaixa perfeitamente. 
+        A diferença visual na memória é que, enquanto o Selection e o Bubble lidam com 
+        trocas, o Insertion lida com deslocamentos para abrir espaço.</p>
+</body>
+</html>
