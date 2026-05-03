@@ -30,10 +30,10 @@ ok  • Índice onde o ID foi encontrado
 ok  • -1 caso não encontrado 
 */
 //FUNÇÃO BUSCA BINARIA
-int buscaLinear(int ids[], int n, int idProcurado){
-    for(int i=0; i<n; i++){
+int buscaLinear(int ids[], int qtdVendas, int idProcurado){
+    for(int i=0; i<qtdVendas; i++){
         if (idProcurado==ids[i]){
-            printf("O id esta na posicao %d",i);
+            printf("O id esta na posicao %d\n",i);
             return i;
         }
     }
@@ -41,6 +41,175 @@ int buscaLinear(int ids[], int n, int idProcurado){
 
     return -1; //caso não encontrado 
 }
+
+
+
+
+
+
+
+/*
+GY:
+    Função buscaVendaBinaria
+    int buscaBinaria(int ids[], int n, int idProcurado);
+    Descrição:
+    Realiza busca binária no array de IDs.
+    Pré-condição:
+    O array ids[] deve estar ordenado em ordem crescente.
+    Parâmetros:
+    • ids[]: array ordenado de IDs
+    • n: tamanho do array
+    • idProcurado: valor a ser buscado
+    Retorno:
+    • Índice onde o ID foi encontrado
+    • -1 caso não encontrado
+
+*/
+
+
+//int buscarVendaBinaria(int v[], int n, int valor)
+int buscarVendaBinaria(int ids[], int qtdVendas, int idProcurado) {
+    int inicio=0;
+    int fim=qtdVendas-1;
+    //Repetir ate nao restar mais elementos
+    while(inicio<=fim){
+
+        //elemento do meio é dado pela formula do professor meio = inicial + (final - inicial) / 2
+        int meio = inicio + (fim - inicio) / 2;
+        //na sorte o elemento do meio é exatamente oque procuravamos, ja retorna  e acaba por ai mesmo
+        if (ids[meio] == idProcurado) {
+            //Retornar a resposta
+            printf("O id esta na posicao %d\n",meio);
+            return meio;
+        }
+        //Se nao, se o elemento eh menor que o valor
+        if (ids[meio] < idProcurado) {
+            //Continuar, pela formula do professor
+            inicio = meio + 1;
+        }
+        
+        if (ids[meio] > idProcurado){
+            //Continuar, pela formula do professor
+            fim = meio - 1;
+        }
+    }
+    return -1;
+}
+
+
+
+
+//Função bubbleSortVendaPorId 
+/*Gy:
+    Função bubbleSortVendaPorId
+        void bubbleSortVendaPorId(int ids[],
+        int produtoIds[],
+        int quantidades[],
+        float precos[],
+        int n);
+    Descrição:
+    Ordena os dados em ordem crescente de id utilizando o algoritmo Bubble Sort.
+    Parâmetros:
+    • Arrays paralelos (ids, produtoIds, quantidades, precos)
+    • n: número de elementos
+    Retorno:
+    • Não possui retorno
+
+*/
+
+
+/*Gy:
+    Função insertionSortVendaPorId
+        void insertionSortVendaPorId(int ids[],
+        int produtoIds[],
+        int quantidades[],
+        float precos[],
+        int n);
+    Descrição:
+    Ordena os dados em ordem crescente de id utilizando o algoritmo Insertion Sort.
+    Parâmetros:
+    • Arrays paralelos (ids, produtoIds, quantidades, precos)
+    • n: número de elementos
+    Retorno:
+    • Não possui retorno 
+*/
+
+
+
+/*Gy:
+    Função selectionSortVendaPorId
+        void selectionSortPorId(int ids[],
+        int produtoIds[],
+        int quantidades[],
+        float precos[],
+        int n);
+    Descrição:
+    Ordena os dados em ordem crescente de id utilizando o algoritmo Selection Sort.
+    Parâmetros:
+    • Arrays paralelos (ids, produtoIds, quantidades, precos)
+    • n: número de elementos
+    Retorno:
+    • Não possui retorno 
+*/
+
+
+
+void imprimir(int ids[], int produtoIds[], int quantidades[], float precos[], int qtdVendas) {
+    printf("[");
+    for (int i = 0; i < qtdVendas; i++) printf("%d ", ids[i]);
+    printf("]\n");
+    printf("[");
+    for (int i = 0; i < qtdVendas; i++) printf("%d ", produtoIds[i]);
+    printf("]\n");
+    printf("[");
+    for (int i = 0; i < qtdVendas; i++) printf("%d ", quantidades[i]);
+    printf("]\n");
+    printf("[");
+    for (int i = 0; i < qtdVendas; i++) printf("%f ", precos[i]);
+    printf("]\n");
+
+}
+
+
+void selectionSortVendaPorId(int ids[], int produtoIds[], int quantidades[], float precos[], int qtdVendas,int digitado) {
+    // para cada posição do vetor
+    for (int i = 0; i < qtdVendas - 1; i++) {
+        // inicializar o índice do menor elemento
+        int indiceMenor = i;
+        // percorrer o vetor
+        for (int j = i + 1; j < qtdVendas; j++) {
+            // se o elemento atual (do 2o percurso) for menor que o valor que está no índice do menor elemento
+            if (ids[j] < ids[indiceMenor]) {
+                // atualizar o índice do menor elemento
+                indiceMenor = j;
+            }
+        }
+
+        // trocar o valor da posição a ser preenchida com o valor do menor índice
+        int aux1 = ids[i];
+        ids[i] = ids[indiceMenor];
+        ids[indiceMenor] = aux1;
+
+        int aux2 = produtoIds[i];
+        produtoIds[i] = produtoIds[indiceMenor];
+        produtoIds[indiceMenor] = aux2;
+
+        int aux3= quantidades[i];
+        quantidades[i] = quantidades[indiceMenor];
+        quantidades[indiceMenor] = aux3;
+
+        float aux4 = precos[i];
+        precos[i] = precos[indiceMenor];
+        precos[indiceMenor] = aux4;
+    }
+    if (digitado!=2){
+        imprimir(ids, produtoIds, quantidades, precos, qtdVendas);
+    }
+}
+
+
+
+
 
 
 
@@ -225,20 +394,48 @@ int main() {
 
 
 
+    //Menu provisorio
+
+    int digitado;
+
+    printf("1=busca linear\n");
+    printf("2=busca binaria\n");
+    printf("3=Selection\n");
+    printf("0=sair\n");
+    scanf(" %d", &digitado);
 
     
-    //Função buscaLinear
-    int idProcurado;
-    int n=MAX;
-    //Função de busca linear
-    printf("Qual id Procurado?");
-    scanf(" %d", &idProcurado);
-    buscaLinear(ids, n, idProcurado);
 
+    while(digitado!=0){
+        
+    
+        if (digitado==1 || digitado==2){
+            //Função buscaLinear e buscarVendaBinaria
+            int idProcurado;
+            //Função de busca linear
+            printf("Qual id Procurado?");
+            scanf(" %d", &idProcurado);
+
+            if (digitado==1){
+                buscaLinear(ids, qtdVendas, idProcurado);
+            }
+
+            if (digitado==2){
+                selectionSortVendaPorId(ids, produtoIds, quantidades, precos, qtdVendas, digitado);
+                buscarVendaBinaria(ids, qtdVendas, idProcurado);
+            }
+        }
+
+        if (digitado==3){
+            //Função Selection
+            selectionSortVendaPorId(ids, produtoIds, quantidades, precos, qtdVendas, digitado);
+        }
+
+    }
+
+    
 
 
 
     return 0;
 }
-
-
