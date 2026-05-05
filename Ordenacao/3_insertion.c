@@ -22,8 +22,8 @@ void insertion_sort(int v[], int n) {
             // deve ser inserido
             else encontrou = true;
         }  
-        // inserir elemento na pos    // deslocar elemento do 2º percurso para a direita
-        v[j + 1] = v[j];
+
+     
         // continuar procurando
         v[j + 1] = elemento;
     }
