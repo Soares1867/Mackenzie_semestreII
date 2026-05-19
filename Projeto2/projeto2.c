@@ -1,43 +1,60 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #define MAX 1000
 
 // =================== FUNÇÕES GERAIS =====================
 
-// Função para imprimir após a ordenação
-void imprimir(int ids[], int produtoIds[], int quantidades[], float precos[], int qtdVendas) {
-    printf("[");
-    for (int i = 0; i < qtdVendas; i++) printf("%d ", ids[i]);
-    printf("]\n");
-    printf("[");
-    for (int i = 0; i < qtdVendas; i++) printf("%d ", produtoIds[i]);
-    printf("]\n");
-    printf("[");
-    for (int i = 0; i < qtdVendas; i++) printf("%d ", quantidades[i]);
-    printf("]\n");
-    printf("[");
-    for (int i = 0; i < qtdVendas; i++) printf("%f ", precos[i]);
-    printf("]\n");
+int encontraIndiceDaDescricao(int produtoIds[], int produtosIdsCatalogo[],int qtdProdutos, int indice){
+    for(int i = 0; i < qtdProdutos; i++){
+        if (produtoIds[indice] == produtosIdsCatalogo[i]){
+            return i;
+        }
+    }
+    return -1;
+}
+
+// Função para imprimir
+void imprimir(int ids[], int produtoIds[], int quantidades[], float precos[], char descricoes[][50], int produtosIdsCatalogo[], int qtdVendas, int qtdProdutos) {
+    printf("\nVendas ordenadas por ID:\n\n");
+    printf("--------------------------------------------------------------------------------------------------------\n");
+    printf("%-10s | %-12s | %-25s | %-12s | %-16s | %-12s\n", 
+        "ID VENDA", "ID PRODUTO", "DESCRICAO", "QUANTIDADE", "PRECO UNITARIO", "TOTAL");
+    printf("--------------------------------------------------------------------------------------------------------\n");
+    
+    for (int i = 0; i < qtdVendas; i++){
+
+
+        int indiceDesc = encontraIndiceDaDescricao(produtoIds,produtosIdsCatalogo,qtdProdutos, i);
+
+        /*
+        for (int j = 0; j < qtdProdutos; j++){
+            if (produtoIds[i] == produtosIdsCatalogo[j]){
+                indiceDesc = j;
+                break; // quando achar o indice da descricao, para o loop de j
+            }
+        }
+        */
+
+        // calcula a ultima coluna
+        float total =  precos[i] * quantidades[i];
+
+        if (indiceDesc != -1){ // SE ENCONTROU O ID DO PRODUTO NA TABELA DE ID PRODUTOS E DESCRICOES, IMPRIME NORMALMENTE
+            printf("%-10d | %-12d | %-25s | %-12d | R$ %-13.2f | R$ %-12.2f\n",
+                ids[i], produtoIds[i], descricoes[indiceDesc], quantidades[i], precos[i], total);
+        } else { // SE NAO ENCONTRAR O RESPECTIVO INDICE, COLOCAR NA DESCRICAO "NAO ENCONTRADO"
+            printf("%-10d | %-12d | %-25s | %-12d | R$ %-13.2f | R$ %-12.2f\n",
+                ids[i], produtoIds[i], "NAO ENCONTRADO", quantidades[i], precos[i], total);            
+        }
+    }
+    printf("--------------------------------------------------------------------------------------------------------\n");
 
 }
 
-/*Gy:
-    4.
-        Função carregarProdutos
-                    int carregarProdutos(const char nomeArquivo[],int produtoIds[],char descricoes[][50],int max);
-        Descrição: Lê o arquivo no formato CSV e preenche os arrays de IDs e descrições.
-        Parâmetros:
-     ok • nomeArquivo[]: nome do arquivo de entrada
-     ok • produtoIds[]: array de IDs dos produtos
-     ok  • descrições[][50]: array de strings até 49 caracteres
-     ok  • max: quantidade máxima de produtos que podem ser carregados nos arrays.
-        Retorno:
-     ok • Número de registros carregados com sucesso
-     ok  • Retorna -1 em caso de erro ao abrir o arquivo
-*/
 
-// Funçâo para carregar o arquivo .csv, que contém os cadastros dos produtos
+// --- FUNÇÃO: carregarProdutos ---
+// Funcao para carregar o arquivo .csv, que contem os cadastros dos produtos
 int carregarProdutos(const char nomeArquivo[], int produtoIds[], char descricoes[][50], int max) {
     FILE *arquivo = fopen(nomeArquivo, "r");
     
@@ -58,30 +75,9 @@ int carregarProdutos(const char nomeArquivo[], int produtoIds[], char descricoes
     return contador;
 }
 
-/*GY:
-    4.
-    OK  Função carregarVendas
-        int carregarVendas(const char nomeArquivo[],
-            int ids[],
-            int produtoIds[],
-            int quantidades[],
-            float precos[],
-            int max);
-        Descrição:
-        Lê os dados de vendas a partir de um arquivo texto e armazena nos arrays paralelos.
-        Parâmetros:
-     ok • nomeArquivo[]: nome do arquivo de entrada
-     ok • ids[]: array de IDs das vendas
-     ok • produtoIds[]: array de IDs dos produtos
-     ok • quantidades[]: array de quantidades vendidas
-     ok • precos[]: array de preços unitários
-     ok • max: capacidade máxima dos arrays
-        Retorno:
-     ok • Número de registros carregados com sucesso
-     ok • Retorna -1 em caso de erro ao abrir o arquivo 
-*/
 
 // --- FUNÇÃO: carregarVendas ---
+// Carrega o arquivo de vendas.txt 
 int carregarVendas(const char nomeArquivo[], int ids[], int produtoIds[], int quantidades[], float precos[], int max) {
     FILE *arquivo = fopen(nomeArquivo, "r");
     
@@ -103,16 +99,7 @@ int carregarVendas(const char nomeArquivo[], int ids[], int produtoIds[], int qu
     return contador;
 }
 
-/*
-Função calcularFaturamentoTotal
-Descrição: Calcula o faturamento total somando quantidade * preço de todas as vendas.
-Parâmetros:
-    • quantidades[]
-    • precos[]
-    • n: número de registros
-Retorno:
-    • Valor total do faturamento (float)
-*/
+
 // --- FUNCAO CALCULAR FATURAMENTO TOTAL ---
 float calcularFaturamentoTotal(int quantidades[],float precos[],int n){
     float resultado = 0;
@@ -123,7 +110,8 @@ float calcularFaturamentoTotal(int quantidades[],float precos[],int n){
 }
 
 
-// --- FUNCAO ENCONTRAR PRODUTO MAIS VENDIDO
+
+// --- FUNCAO ENCONTRAR PRODUTO MAIS VENDIDO  - FALTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 /*
 Descrição: Determina o produtoId com maior quantidade total vendida.
 Parâmetros:
@@ -141,54 +129,20 @@ int encontrarProdutoMaisVendido(int produtoIds[],int quantidades[],int n){
 */
 
 
-// ================== FUNÇÔES DE BUSCA =============================
+// ================== FUNCOES DE BUSCA =============================
 
-/*
-GY:
-    Função buscaLinear
-OK  int buscaLinear(int ids[], int n, int idProcurado);
-    Descrição: Realiza busca sequencial no array de IDs.
-    Parâmetros:
-ok  • ids[]: array de IDs
-ok  • n: tamanho do array
-ok  • idProcurado: valor a ser buscado
-    Retorno:
-ok  • Índice onde o ID foi encontrado
-ok  • -1 caso não encontrado 
-*/
-
-//FUNÇÃO BUSCA BINARIA
+//-- FUNÇÃO BUSCA LINEAR --
 int buscaLinear(int ids[], int qtdVendas, int idProcurado){
     for(int i=0; i<qtdVendas; i++){
         if (idProcurado==ids[i]){
-            printf("O ID do produto se encontra na posicao %d\n",i);
             return i;
         }
     }
-    
     return -1; //caso não encontrado 
 }
 
 
-/*
-GY:
-    Função buscaVendaBinaria
-    int buscaBinaria(int ids[], int n, int idProcurado);
-    Descrição:
-    Realiza busca binária no array de IDs.
-    Pré-condição:
-    O array ids[] deve estar ordenado em ordem crescente.
-    Parâmetros:
-    • ids[]: array ordenado de IDs
-    • n: tamanho do array
-    • idProcurado: valor a ser buscado
-    Retorno:
-    • Índice onde o ID foi encontrado
-    • -1 caso não encontrado
-
-*/
-
-
+// -- BUSCA VENDA BINARIA --
 //int buscaVendaBinaria(int v[], int n, int valor)
 int buscaVendaBinaria(int ids[], int qtdVendas, int idProcurado) {
     int inicio=0;
@@ -196,12 +150,11 @@ int buscaVendaBinaria(int ids[], int qtdVendas, int idProcurado) {
     //Repetir ate nao restar mais elementos
     while(inicio<=fim){
 
-        //elemento do meio é dado pela formula do professor => meio = inicial + (final - inicial) / 2
+        //elemento do meio é dado pela formula => meio = inicial + (final - inicial) / 2
         int meio = inicio + (fim - inicio) / 2;
         //na sorte o elemento do meio é exatamente oque procuravamos, ja retorna  e acaba por ai mesmo
         if (ids[meio] == idProcurado) {
             //Retornar a resposta
-            printf("O id esta na posicao %d\n",meio);
             return meio;
         }
         //Se nao, se o elemento eh menor que o valor
@@ -218,57 +171,83 @@ int buscaVendaBinaria(int ids[], int qtdVendas, int idProcurado) {
     return -1;
 }
 
+// ================== FUNCOES DE ORDENACAO =============================
+
+// -- BUBBLE SORT --
+void bubbleSortVendaPorId(int ids[], int produtoIds[], int quantidades[], float precos[],int qtdVendas){
+    for (int contador = 0; contador < qtdVendas - 1; contador++){
+        for (int i = 0; i < qtdVendas - 1; i++){
+            if (ids[i] > ids[i+1]){
+
+                // troca de id
+                int temp_id;
+                temp_id = ids[i];
+                ids[i] = ids[i+1];
+                ids[i+1] = temp_id;
+                
+                // troca de produtos
+                int temp_produtos;
+                temp_produtos = produtoIds[i];
+                produtoIds[i] = produtoIds[i+1];
+                produtoIds[i+1] = temp_produtos;
+
+                // troca de quantidades
+                int temp_quantidades;
+                temp_quantidades = quantidades[i];
+                quantidades[i] = quantidades[i+1];
+                quantidades[i+1] = temp_quantidades;
+
+                // troca de preços
+                float temp_precos;
+                temp_precos = precos[i];
+                precos[i] = precos[i+1];
+                precos[i+1] = temp_precos;
 
 
-// ================== FUNÇÔES DE ORDENAÇÃO =============================
+            }
+        }
+    }
+}
+// -- INSERTION SORT --
+void insertionSortVendaPorId(int ids[], int produtoIds[], int quantidades[], float precos[], int qtdVendas){
+    for (int i = 1; i < qtdVendas; i++) {
 
-//Função bubbleSortVendaPorId 
-/*Gy:
-    Função bubbleSortVendaPorId
-        void bubbleSortVendaPorId(int ids[], int produtoIds[], int quantidades[], float precos[],int n);
-    Descrição:
-    Ordena os dados em ordem crescente de id utilizando o algoritmo Bubble Sort.
-    Parâmetros:
-    • Arrays paralelos (ids, produtoIds, quantidades, precos)
-    • n: número de elementos
-    Retorno:
-    • Não possui retorno
+        int elemento_ids = ids[i];
+        int elemento_produtoIds = produtoIds[i];
+        int elemento_quantidades = quantidades[i];
+        float elemento_precos = precos[i];
 
-*/
+        int j = i - 1;
+
+        bool encontrei = false;
+
+        while(j >= 0 && !encontrei){
+
+            if (ids[j] > elemento_ids){
+
+                ids[j+1] = ids[j];
+                produtoIds[j+1] = produtoIds[j];
+                quantidades[j+1] = quantidades[j];
+                precos[j+1] = precos[j];
+
+                j--;
+            }
+            else{
+                encontrei = true;
+            }
+        }
+
+        ids[j+1] = elemento_ids;
+        produtoIds[j+1] = elemento_produtoIds;
+        quantidades[j+1] = elemento_quantidades;
+        precos[j+1] = elemento_precos;
+    }
+
+}
 
 
-
-
-
-/*Gy:
-    Função insertionSortVendaPorId
-        void insertionSortVendaPorId(int ids[],int produtoIds[],int quantidades[],float precos[],int n);
-    Descrição:
-    Ordena os dados em ordem crescente de id utilizando o algoritmo Insertion Sort.
-    Parâmetros:
-    • Arrays paralelos (ids, produtoIds, quantidades, precos)
-    • n: número de elementos
-    Retorno:
-    • Não possui retorno 
-*/
-
-
-
-
-
-/*Gy:
-    Função selectionSortVendaPorId
-        void selectionSortPorId(int ids[],int produtoIds[],int quantidades[],float precos[],int n);
-    Descrição:
-    Ordena os dados em ordem crescente de id utilizando o algoritmo Selection Sort.
-    Parâmetros:
-    • Arrays paralelos (ids, produtoIds, quantidades, precos)
-    • n: número de elementos
-    Retorno:
-    • Não possui retorno 
-*/
-
-void selectionSortVendaPorId(int ids[], int produtoIds[], int quantidades[], float precos[], int qtdVendas,int digitado) {
+// -- SELECTION SORT --
+void selectionSortVendaPorId(int ids[], int produtoIds[], int quantidades[], float precos[], int qtdVendas) {
     // para cada posição do vetor
     for (int i = 0; i < qtdVendas - 1; i++) {
         // inicializar o índice do menor elemento
@@ -299,23 +278,118 @@ void selectionSortVendaPorId(int ids[], int produtoIds[], int quantidades[], flo
         precos[i] = precos[indiceMenor];
         precos[indiceMenor] = aux4;
     }
-    // EDU: ALTERAR ESSE IF DEPOIS, POIS NA BUSCA BINARIA NAO SERA ORDENADA COM O SELECTION SORT
-    // EDU: TAMBEM REMOVER O DIGITADO COMO UM PARAMETRO NA LINHA DA FUNCAO
-    if (digitado==1){
-        imprimir(ids, produtoIds, quantidades, precos, qtdVendas);
-    }
 }
 
 
+// -- MERGE SORT --
+
+// Funcao auxiliar: Ordena os valores - Mesclando os valores dos dois vetores
+void merge(int n1, int n2, // n1 informa qts elementos tem a primeira metade, n2 informa da segunda metade
+    int ids[], int ids1[], int ids2[], // chama id e suas partes divididas
+    int pids[], int pids1[], int pids2[], // chama produtoIds e suas partes divididas
+    int qtd[], int qtd1[], int qtd2[], // chama quantidades e suas partes
+    float precos[], float precos1[], float precos2[]) // chama precos e suas particoes
+    {
+
+        // INICIALIZA OS INDICES PARA OS VETORES
+        int i = 0; // vetor inteiro
+        int i1 = 0; // primeira metade
+        int i2 = 0; // segunda metade
+        
+        while (i1 < n1 && i2 < n2){ // Enquanto não acabar todos os elementos de um vetor, vai continuar iterando
+
+            if(ids1[i1] < ids2[i2]) // se o elemento da metade e for menor que o elemento da metade 2
+            { 
+                ids[i] = ids1[i1]; //vetor completo recebe o valor da primeira parte
+                pids[i] = pids1[i1];
+                qtd[i] = qtd1[i1];
+                precos[i] = precos1[i1];
+
+                i1++;
+            } else {
+                ids[i] = ids2[i2]; //vetor completo recebe o valor da segunda metade
+                pids[i] = pids2[i2];
+                qtd[i] = qtd2[i2];
+                precos[i] = precos2[i2];
+
+                i2++;
+            }
+            i++;
+        }
+
+        // QUANDO ACABAR UM DOS DOIS VETORES, VAI PARTIR PARA CÁ
+        // Vai copiar os elementos que sobrarem na metade 1 ou 2 para o vetor completo
+        while(i1 < n1){ // caso seja o vetor da metade 1 que sobrar, entrará nessa iteracao
+            ids[i] = ids1[i1]; //vetor completo recebe o valor da primeira parte
+            pids[i] = pids1[i1];
+            qtd[i] = qtd1[i1];
+            precos[i] = precos1[i1];
+            i1++;
+            i++;
+        }
+
+        while (i2 < n2){ // caso seja o vetor da metade 2 que sobrar
+            ids[i] = ids2[i2]; //vetor completo recebe o valor da segunda metade
+            pids[i] = pids2[i2];
+            qtd[i] = qtd2[i2];
+            precos[i] = precos2[i2];
+            i2++;
+            i++;
+        }
+
+}
+
+// Divide os valores
+void mergeSortVendaPorId(int ids[], int produtoIds[],int quantidades[],float precos[],int qtdVendas){
+    // VER ONDE ESSE inicio E fim DO PARAMETRO VAO SE ENCAIXAR, SE NAO CONSEGUIR, VOU RETIRAR, ADICIONEI O qtdVendas como n do exemplo na sala
+    
+    if (qtdVendas<=1){return;} // CASO BASE DA FUNCAO RECURSIVA, PARA TER UM PONTO DE PARADA E NAO CRIAR UMA RECURSIVIDADE INFINITA
+    
+    int meio = qtdVendas / 2;  // encontra a metade da lista
+    int n1 = meio; // define que a primeira parte definida terá seu limite maximo o valor de meio
+    int n2 = qtdVendas - meio; // define que a segunda parte tem seu limite maximo o que sobrar da operacao do total - meio, formula para operar em casos de quantidade impares
+    
+    int ids1[n1], ids2[n2]; //PARA DIVIDIR ids[] -- declara a metade 1 e a metade 2
+    int produtoIds1[n1], produtoIds2[n2]; // PARA DIVIDIR produtosIds[]
+    int quantidades1[n1], quantidades2[n2]; // PARA DIVIDIR quantidades[]
+    float precos1[n1], precos2[n2]; // PARA DIVIDIR precos[]
+
+    for (int i = 0; i < n1; i++){ //PRIMEIRA METADE RECEBE SEUS VALORES
+        ids1[i] = ids[i];
+        produtoIds1[i] = produtoIds[i];
+        quantidades1[i] = quantidades[i];
+        precos1[i] = precos[i];
+
+    }
+    for (int i = 0; i < n2; i++){ // SEGUNDA METADE RECEBE SEUS VALORES
+        ids2[i] = ids[meio+i];
+        produtoIds2[i] = produtoIds[meio+i];
+        quantidades2[i] = quantidades[meio+i];
+        precos2[i] = precos[meio+i];
+
+    }
+    // ordena a primeira metade fazendo a recursividade (vai quebrar essa parte em partes menores)
+    mergeSortVendaPorId(ids1, produtoIds1, quantidades1, precos1, n1);
+    
+    // ordena a segunda metade fazendo a recursividade (vai quebrar essa parte em partes menores)
+    mergeSortVendaPorId(ids2, produtoIds2, quantidades2, precos2, n2);
+
+    // chama a funcao auxiliar para realizar a mesclagem (MERGE) dos dados ja divididos em suas respectivas partes
+    merge(n1, n2, ids, ids1, ids2, produtoIds, produtoIds1, produtoIds2, quantidades, quantidades1, quantidades2, precos, precos1, precos2);
+
+}
+
+
+// ========= FUNCAO MAIN ==========
 int main(){
     // ARRAYS DO ARQUIVO produto.csv (contendo o id e o nome de cada produto catalogado)
-    int produtoIdsCatalogo[MAX];//Gy:lista de todos os produtos
-    char descricoes[MAX][50];   //Gy: nome do produto
+    int produtoIdsCatalogo[MAX];//lista de todos os produtos
+    char descricoes[MAX][50];   // nome do produto
 
     // ARRAY DAS VENDAS do arquivo vendas.txt, contendo todas as vendas com suas respectivas informaçôes
     int ids[MAX];        // ID DA VENDA                    
     int produtoIds[MAX]; // ID DO PRODUTO VENDIDO                      
-    int quantidades[MAX]; //Gy: Quantidades vendidas
+    int quantidades[MAX]; //Quantidades vendidas
     float precos[MAX]; // PREÇO VENDIDO ***UNITARIO*** DO PRODUTO
 
     // CARREGA PRODUTOS - carrega os produtos catalogados - carrega o arquivo produtos.csv
@@ -333,12 +407,13 @@ int main(){
         printf("Erro ao abrir o arquivo vendas.txt.\n");
         return 1;
     }
-    printf("Sucesso! %d produtos e %d vendas carregados.\n\n", qtdProdutos, qtdVendas);
+    printf("%d produtos e %d vendas carregados com sucesso.\n", qtdProdutos, qtdVendas);
 
+    int precisaOrdenar = 1; // Para aplicar a logica de ordenar somente uma vez, assim que for ordenado pela primerira vez, nao precisara novamente
 
     int opcao;
     while(1) {
-        printf("\n\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+        printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
         printf("        SISTEMA DE ANALISE DE DADOS DE VENDAS        \n");
         printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
         printf("1. Mostrar Vendas por ID\n"
@@ -350,86 +425,133 @@ int main(){
         scanf("%d", &opcao);
 
         switch(opcao){
-            case 1: { // MOSTRAR VENDAS POR ID - abre o submenu
-                int opcaoVendas;
-                int controleSubMenuVendas = 1; // para definir o ponto de parada do while (exemplificando no primeiro subcase)
-                while(controleSubMenuVendas){
-                    printf("\n\n\nEscolha o algoritmo de ordenacao:\n\n"
-                        "1. Bubble Sort\n"
-                        "2. Insertion Sort\n"
-                        "3. Selection Sort\n"
-                        "4. Quick Sort\n"
-                        "5. Merge Sort\n"
-                        "6. Retornar ao menu principal\n\n"
-                        "ESCOLHA UMA OPCAO: "
-                    );
-                    scanf("%d", &opcaoVendas);
-                    switch (opcaoVendas)    {
-                        case 1:{ //BUBBLE SORT
-                            //bubbleSortVendaPorId();
-                            controleSubMenuVendas = 0; // neste ponto, assim que a funcao for chamada e realizada, vai parar o while
-                            break; // o break vai sair do laço do switch case interno / subcase (esse para escolher o bubble)
-                        }
-                        case 2: { // INSERTION SORT
-                            //insertionSortVendaPorId();
-                            controleSubMenuVendas = 0; 
-                            break;
-                        }
-                        case 3: { // SELECTION SORT
-                            //  EDU: ALTERAR DEPOIS EXCLUINDO O PARAMETRO opcao, EXPLICACAO NA FUNCAO DO SELECTION
-                            selectionSortVendaPorId(ids, produtoIds, quantidades, precos, qtdVendas, opcao);
-                            controleSubMenuVendas = 0; 
-                            break;
-                        }
-                        case 4: { // QUICK SORT
-                            //quickSortVendaPorId();
-                            controleSubMenuVendas = 0; 
-                            break;
-                        }
-                        case 5: { // MERGE SORT
-                            //mergeSortVendaPorId();
-                            controleSubMenuVendas = 0; 
-                            break;
-                        }
-                        case 6: {
-                            controleSubMenuVendas = 0; 
-                            break;
-                        }
-                        default:{
-                            printf("OPCAO INVALIDA. DIGITE UMA OPCAO EXISTENTE");
-                            break;
+            case 1: { // MOSTRAR VENDAS POR ID - abre o submenu para escolher o algoritmo de ordenacao
+                if (precisaOrdenar == 0){ // se nao precisa ordenar, entao so imprime
+                    imprimir(ids, produtoIds, quantidades, precos, descricoes, produtoIdsCatalogo, qtdVendas, qtdProdutos);
+                } else {
+                    int opcaoVendas;
+                    int controleSubMenuVendas = 1; // para definir o ponto de parada do while (exemplificando no primeiro subcase)
+                    while(controleSubMenuVendas){
+                        printf("\n\n\nEscolha o algoritmo de ordenacao:\n\n"
+                            "1. Bubble Sort\n"
+                            "2. Insertion Sort\n"
+                            "3. Selection Sort\n"
+                            "4. Quick Sort\n"
+                            "5. Merge Sort\n"
+                            "6. Retornar ao menu principal\n\n"
+                            "ESCOLHA UMA OPCAO: "
+                        );
+                        scanf("%d", &opcaoVendas);
+                        switch (opcaoVendas)    {
+                            case 1:{ //BUBBLE SORT
+                                bubbleSortVendaPorId(ids, produtoIds, quantidades, precos, qtdVendas);
+                                imprimir(ids, produtoIds, quantidades, precos, descricoes, produtoIdsCatalogo, qtdVendas, qtdProdutos);
+                                controleSubMenuVendas = 0; // neste ponto, assim que a funcao for chamada e realizada, vai parar o while
+                                precisaOrdenar = 0;
+                                break; // o break vai sair do laço do switch case interno / subcase (esse para escolher o bubble)
+                            }
+                            case 2: { // INSERTION SORT
+                                insertionSortVendaPorId(ids, produtoIds, quantidades, precos, qtdVendas);
+                                imprimir(ids, produtoIds, quantidades, precos, descricoes, produtoIdsCatalogo, qtdVendas, qtdProdutos);
+                                controleSubMenuVendas = 0; 
+                                precisaOrdenar = 0;
+                                break;
+                            }
+                            case 3: { // SELECTION SORT
+                                selectionSortVendaPorId(ids, produtoIds, quantidades, precos, qtdVendas);
+                                imprimir(ids, produtoIds, quantidades, precos, descricoes, produtoIdsCatalogo, qtdVendas, qtdProdutos);
+                                controleSubMenuVendas = 0; 
+                                precisaOrdenar = 0;
+                                break;
+                            }
+                            case 4: { // QUICK SORT
+                                //quickSortVendaPorId();
+                                //imprimir(ids, produtoIds, quantidades, precos, descricoes, produtoIdsCatalogo, qtdVendas, qtdProdutos);
+                                controleSubMenuVendas = 0; 
+                                precisaOrdenar = 0;
+                                break;
+                            }
+                            case 5: { // MERGE SORT
+                                mergeSortVendaPorId(ids, produtoIds, quantidades, precos, qtdVendas);
+                                imprimir(ids, produtoIds, quantidades, precos, descricoes, produtoIdsCatalogo, qtdVendas, qtdProdutos);
+                                controleSubMenuVendas = 0; 
+                                precisaOrdenar = 0;
+                                break;
+                            }
+                            case 6: { // RETORNA AO MENU PRINCIPAL
+                                controleSubMenuVendas = 0; 
+                                break;
+                            }
+                            default:{ // CASO DE ERRO
+                                printf("OPCAO INVALIDA. DIGITE UMA OPCAO EXISTENTE");
+                                break;
+                            }
                         }
                     }
                 }
             }
             break;
-            case 2: { // BUSCAR VENDAS POR ID - abre o submenu
-                    int opcaoBusca;
-                    int controleSubMenuBusca = 1;
+            case 2: { // BUSCAR VENDAS POR ID - abre o submenu para escolher o algoritmo de busca
+                int opcaoBusca;
+                int controleSubMenuBusca = 1;
+                int idProcurado;
+                printf("Digite o ID do produto procurado: ");
+                scanf("%d", &idProcurado);
                 while(controleSubMenuBusca){
                     printf("\n\nEscolha o algoritmo de busca:\n"
-                    "1. Busca Linear\n"
-                    "2. Busca Binaria\n"
-                    "3. Retornar ao menu principal\n"
+                    "  1. Busca Linear\n"
+                    "  2. Busca Binaria\n"
+                    "  3. Retornar ao menu principal\n"
                     "ESCOLHA UMA OPCAO: ");
                     scanf("%d", &opcaoBusca);
                     
                     switch (opcaoBusca){
                     case 1:{
-                        int idProcurado;
-                        printf("Digite o ID do produto procurado: ");
-                        scanf("%d", &idProcurado);
-                        buscaLinear(ids, qtdVendas, idProcurado);
+                        int indicebusca = buscaLinear(ids, qtdVendas, idProcurado);
+                        if (indicebusca == -1){
+                            printf("ID DE VENDA NAO ENCONTRADO");
+                        } else {
+
+                            int indicedescricao = encontraIndiceDaDescricao(produtoIds,produtoIdsCatalogo,qtdProdutos, indicebusca);
+
+                            printf("\nVenda encontrada:\n");
+                            printf("ID Venda: %d\n", ids[indicebusca]);
+                            printf("Produto: %d\n", produtoIds[indicebusca]);
+                            if (indicedescricao = -1) {
+                                printf("Descricao: NAO ENCONTRADO");
+                            } else {
+                            printf("Descricao: %s\n", descricoes[indicedescricao]);
+                            }
+                            printf("Quantidade: %d\n", quantidades[indicebusca]);
+                            printf("Preco unitario: %.2f\n", precos[indicebusca]);
+                            printf("Total da venda: %.2f\n", precos[indicebusca] * quantidades[indicebusca]);
+
+                        }
                         controleSubMenuBusca = 0; // neste ponto, assim que a funcao for chamada e realizada, vai parar o while
                         break; // o break vai sair do laço do switch case interno / subcase (esse para escolher o linear)
                     }
-                    case 2: {
-                        int idProcurado;
-                        printf("Digite o ID do produto procurado: ");
-                        scanf("%d", &idProcurado);   
-                        // EDU: MUDAR O METODO DE ORDENACAO PARA OU MERGE OU QUICK SORT                     
-                        selectionSortVendaPorId(ids, produtoIds, quantidades, precos, qtdVendas, opcao);
-                        buscaVendaBinaria(ids, qtdVendas, idProcurado);
+                    case 2: {                      
+                        if (precisaOrdenar) {
+                            mergeSortVendaPorId(ids, produtoIds, quantidades, precos, qtdVendas);
+                            precisaOrdenar = 0;
+                        }
+                        int indicebusca = buscaVendaBinaria(ids, qtdVendas, idProcurado);
+                        if (indicebusca == -1){
+                            printf("ID DE VENDA NAO ENCONTRADO");
+                        } else {
+                            int indicedescricao = encontraIndiceDaDescricao(produtoIds,produtoIdsCatalogo,qtdProdutos, indicebusca);
+                            printf("\nVenda encontrada:\n");
+                            printf("ID Venda: %d\n", ids[indicebusca]);
+                            printf("Produto: %d\n", produtoIds[indicebusca]);
+                            if (indicedescricao = -1) {
+                                printf("Descricao: NAO ENCONTRADO");
+                            } else {
+                            printf("Descricao: %s\n", descricoes[indicedescricao]);
+                            }
+                            printf("Quantidade: %d\n", quantidades[indicebusca]);
+                            printf("Preco unitario: %.2f\n", precos[indicebusca]);
+                            printf("Total da venda: %.2f\n", precos[indicebusca] * quantidades[indicebusca]);
+
                         controleSubMenuBusca = 0;
                         break;
                     }
@@ -459,11 +581,13 @@ int main(){
                 return 0; // FINALIZA O PROGRAMA
 
             }
-            default: {
+            default: { // CASO DE ERRO
                 printf("\nOPCAO INVALIDA, DIGITE UMA OPCAO VALIDA");
                 break;
             }
+
+            } 
         }
     }
-        return 0;
+    return 0;
 }
